@@ -1,5 +1,22 @@
 Telegram appender
 
+pom.xml
+```
+	<repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+	
+		<dependency>
+	    <groupId>com.github.NikolayNN</groupId>
+	    <artifactId>LogbackTelegramAlertAppender</artifactId>
+	    <version>0.1</version>
+	</dependency>
+
+```
+
 application.properties
 ```
 logback.logger.com.locator.level=ERROR
