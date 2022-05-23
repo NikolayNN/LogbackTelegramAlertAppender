@@ -42,6 +42,9 @@ public class TelegramBotAlert extends TelegramLongPollingBot {
     }
 
     public void sendMessage(String type, String message) {
+        if (message.length() > 4000) {
+            message = message.substring(0, 4000);
+        }
         String label = getLabel(type);
         String m = serviceName + "\n" + label + " - " + message;
         sendMessage(new SendMessage(channelId, m));
