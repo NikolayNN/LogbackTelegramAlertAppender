@@ -5,8 +5,6 @@ import ch.qos.logback.core.AppenderBase;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
-import java.util.Locale;
-
 public class TelegramAlertAppender extends AppenderBase<ILoggingEvent> {
 
     public static final Marker ALERT_MARKER = MarkerFactory.getMarker("ALERT");
@@ -68,9 +66,10 @@ public class TelegramAlertAppender extends AppenderBase<ILoggingEvent> {
         if (errorMessage.length() > 0) {
             System.err.println(errorMessage + "\n start: " + ConsoleAlert.class.getSimpleName());
             alertService = new ConsoleAlert();
-            return;
+        } else {
+            alertService = new TelegramBotAlert(botUsername, botToken, channelId, serviceName);
         }
-        alertService = new TelegramBotAlert(botUsername, botToken, channelId, serviceName);
+        super.start();
     }
 
     private boolean isBlank(String s) {
