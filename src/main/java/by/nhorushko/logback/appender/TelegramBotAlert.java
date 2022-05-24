@@ -27,6 +27,12 @@ public class TelegramBotAlert extends TelegramLongPollingBot implements AlertMes
         this.botToken = botToken;
         this.channelId = channelId;
         this.serviceName = serviceName;
+        System.out.printf("$$$$$$$$$ RUN telegram bot:" +
+                "\n username: %s," +
+                "\n token: %s," +
+                "\n channelId: %s," +
+                "\n serviceName: %s",
+                this.botUsername, this.botToken, this.channelId, this.serviceName);
         onRun();
     }
 
