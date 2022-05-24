@@ -26,7 +26,7 @@ logback.logger.appender.telegram.channel-id=-123123213
 logback.logger.appender.telegram.service-name=service-name:TAG
 ```
 
-logback.xml
+logback.xml or for Spring Boot logback-spring.xml
 ```
 <configuration>
 

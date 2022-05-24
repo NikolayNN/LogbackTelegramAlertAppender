@@ -5,6 +5,8 @@ import ch.qos.logback.core.AppenderBase;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
+import java.util.Locale;
+
 public class TelegramAlertAppender extends AppenderBase<ILoggingEvent> {
 
     public static final Marker ALERT_MARKER = MarkerFactory.getMarker("ALERT");
@@ -72,6 +74,6 @@ public class TelegramAlertAppender extends AppenderBase<ILoggingEvent> {
     }
 
     private boolean isBlank(String s) {
-        return s == null || s.trim().length() == 0 || s.equalsIgnoreCase("undefined");
+        return s == null || s.trim().length() == 0 || s.toLowerCase().contains("undefined");
     }
 }
