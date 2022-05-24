@@ -51,16 +51,16 @@ public class TelegramAlertAppender extends AppenderBase<ILoggingEvent> {
     @Override
     public void start() {
         String errorMessage = "";
-        if (botUsername == null) {
+        if (isBlank(botUsername)) {
             errorMessage += "\n ! botUsername is null";
         }
-        if (botToken == null) {
+        if (isBlank(botToken)) {
             errorMessage += "\n ! botToken is null";
         }
-        if (channelId == null) {
+        if (isBlank(channelId)) {
             errorMessage += "\n ! channel id null";
         }
-        if (serviceName == null) {
+        if (isBlank(serviceName)) {
             serviceName = botUsername;
         }
         if (errorMessage.length() > 0) {
@@ -69,5 +69,9 @@ public class TelegramAlertAppender extends AppenderBase<ILoggingEvent> {
             return;
         }
         alertService = new TelegramBotAlert(botUsername, botToken, channelId, serviceName);
+    }
+
+    private boolean isBlank(String s){
+        return s == null || s.trim().length() == 0;
     }
 }
