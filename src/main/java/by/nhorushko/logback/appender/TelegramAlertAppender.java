@@ -10,7 +10,7 @@ public class TelegramAlertAppender extends AppenderBase<ILoggingEvent> {
     public static final Marker ALERT_MARKER = MarkerFactory.getMarker("ALERT");
     public static final Marker ALERT_ERROR_MARKER = MarkerFactory.getMarker("ALERT_ERROR");
 
-    private TelegramBotAlert telegramBotAlert;
+    private AlertMessageSendable alertService;
 
     private String botUsername;
     private String botToken;
@@ -40,28 +40,34 @@ public class TelegramAlertAppender extends AppenderBase<ILoggingEvent> {
             return;
         }
         if (marker.equals(ALERT_MARKER)) {
-            telegramBotAlert.sendMessage(event.getLevel().levelStr, event.getFormattedMessage());
+            alertService.sendMessage(event.getLevel().levelStr, event.getFormattedMessage());
             return;
         }
         if (marker.equals(ALERT_ERROR_MARKER)) {
-            telegramBotAlert.sendMessage("ERROR", event.getFormattedMessage());
+            alertService.sendMessage("ERROR", event.getFormattedMessage());
         }
     }
 
     @Override
     public void start() {
+        String errorMessage = "";
         if (botUsername == null) {
-            throw new NullPointerException("botUsername is null");
+            errorMessage += "\n ! botUsername is null";
         }
         if (botToken == null) {
-            throw new NullPointerException("botToken is null");
+            errorMessage += "\n ! botToken is null";
         }
         if (channelId == null) {
-            throw new NullPointerException("channelId is null");
+            errorMessage += "\n ! channel id null";
         }
         if (serviceName == null) {
-            throw new NullPointerException("serviceName is null");
+            serviceName = botUsername;
         }
-        telegramBotAlert = new TelegramBotAlert(botUsername, botToken, channelId, serviceName);
+        if (errorMessage.length() > 0) {
+            System.err.println(errorMessage + "\n start: " + ConsoleAlert.class.getSimpleName());
+            alertService = new ConsoleAlert();
+            return;
+        }
+        alertService = new TelegramBotAlert(botUsername, botToken, channelId, serviceName);
     }
 }

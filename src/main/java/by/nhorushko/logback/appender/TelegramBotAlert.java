@@ -10,7 +10,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import java.util.Locale;
 
-public class TelegramBotAlert extends TelegramLongPollingBot {
+public class TelegramBotAlert extends TelegramLongPollingBot implements AlertMessageSendable {
 
     private final String botUsername;
     private final String botToken;
@@ -30,17 +30,7 @@ public class TelegramBotAlert extends TelegramLongPollingBot {
         onRun();
     }
 
-    private void onRun() {
-        try {
-            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-            botsApi.registerBot(this);
-            sendMessage("INFO", "START");
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> sendMessage("WARN", "STOP")));
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-
+    @Override
     public void sendMessage(String type, String message) {
         if (message.length() > 4000) {
             message = message.substring(0, 4000);
@@ -61,6 +51,17 @@ public class TelegramBotAlert extends TelegramLongPollingBot {
                 return info;
             default:
                 return other;
+        }
+    }
+
+    private void onRun() {
+        try {
+            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+            botsApi.registerBot(this);
+            sendMessage("INFO", "START");
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> sendMessage("WARN", "STOP")));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
         }
     }
 
