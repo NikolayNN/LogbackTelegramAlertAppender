@@ -11,12 +11,16 @@ public class TelegramRatedSender {
     /**
      * A map to track the last time a log was sent for each key.
      */
-    Map<String, Long> lastLogSend = new ConcurrentHashMap<>();
+    private final Map<String, Long> lastLogSend = new ConcurrentHashMap<>();
+    private final long sendIntervalSeconds;
+
+    public TelegramRatedSender(long sendIntervalSeconds) {
+        this.sendIntervalSeconds = sendIntervalSeconds;
+    }
 
     /**
      * The interval (in seconds) to wait before sending another log for the same key.
      */
-    long sendIntervalSeconds;
 
     /**
      * Sends an error message to the log if the specified interval has passed since the last error for the key.
