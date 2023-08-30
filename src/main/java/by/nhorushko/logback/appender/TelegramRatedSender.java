@@ -5,6 +5,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class TelegramRatedSender {
     private static final Logger log = LoggerFactory.getLogger(TelegramRatedSender.class);
@@ -12,10 +15,16 @@ public class TelegramRatedSender {
      * A map to track the last time a log was sent for each key.
      */
     private final Map<String, Long> lastLogSend = new ConcurrentHashMap<>();
+    private final ScheduledExecutorService cleanupScheduler = Executors.newScheduledThreadPool(1);
     private final long sendIntervalSeconds;
 
     public TelegramRatedSender(long sendIntervalSeconds) {
+        this(sendIntervalSeconds, sendIntervalSeconds * 5);
+    }
+
+    public TelegramRatedSender(long sendIntervalSeconds, long cleanupInterval) {
         this.sendIntervalSeconds = sendIntervalSeconds;
+        cleanupScheduler.scheduleAtFixedRate(this::cleanupOldEntries, cleanupInterval, cleanupInterval, TimeUnit.SECONDS);
     }
 
     /**
@@ -44,9 +53,8 @@ public class TelegramRatedSender {
 
     private boolean logMessage(LogLevel logLevel, String key, String message, Object... params) {
         long lastSentTime = lastLogSend.getOrDefault(key, 0L);
-        long currentTimeSeconds = System.currentTimeMillis() / 1000;
-
-        if (currentTimeSeconds - lastSentTime > sendIntervalSeconds) {
+        long currentTimeSeconds = currentTimeSeconds();
+        if (canSend(currentTimeSeconds, lastSentTime)) {
             switch (logLevel) {
                 case ERROR:
                     log.error(TelegramAlertAppender.ALERT_MARKER, message, params);
@@ -58,10 +66,24 @@ public class TelegramRatedSender {
                     log.info(TelegramAlertAppender.ALERT_MARKER, message, params);
                     break;
             }
-            lastLogSend.remove(key);
+            lastLogSend.put(key, currentTimeSeconds);
             return true;
         }
         return false;
+    }
+
+    private void cleanupOldEntries() {
+        long currentTimeSeconds = currentTimeSeconds();
+        lastLogSend.entrySet()
+                .removeIf(entry -> canSend(currentTimeSeconds, entry.getValue()));
+    }
+
+    private boolean canSend(long currentTimeSeconds, long lastSentTime) {
+        return currentTimeSeconds - lastSentTime > sendIntervalSeconds;
+    }
+
+    private long currentTimeSeconds() {
+        return System.currentTimeMillis() / 1000;
     }
 
     private enum LogLevel {
