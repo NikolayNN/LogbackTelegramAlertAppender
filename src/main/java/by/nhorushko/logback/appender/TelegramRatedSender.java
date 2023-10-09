@@ -9,6 +9,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A class for sending rate-limited log messages to Telegram.
+ */
 public class TelegramRatedSender {
     private static final Logger log = LoggerFactory.getLogger(TelegramRatedSender.class);
     /**
@@ -18,10 +21,25 @@ public class TelegramRatedSender {
     private final ScheduledExecutorService cleanupScheduler = Executors.newScheduledThreadPool(1);
     private final long sendIntervalSeconds;
 
+    /**
+     * A single-parameter constructor that initializes an instance of TelegramRatedSender
+     * with the specified send interval and a cleanup interval that's 5 times the send interval.
+     *
+     * @param sendIntervalSeconds The interval (in seconds) for sending messages.
+     *                            Determines the minimum time between two consecutive messages with the same key.
+     */
     public TelegramRatedSender(long sendIntervalSeconds) {
         this(sendIntervalSeconds, sendIntervalSeconds * 5);
     }
 
+    /**
+     * A two-parameter constructor that initializes an instance of TelegramRatedSender
+     * with specified send and cleanup intervals.
+     *
+     * @param sendIntervalSeconds The interval (in seconds) for sending messages.
+     *                            Determines the minimum time between two consecutive messages with the same key.
+     * @param cleanupInterval     The interval (in seconds) for cleaning up old entries.
+     */
     public TelegramRatedSender(long sendIntervalSeconds, long cleanupInterval) {
         this.sendIntervalSeconds = sendIntervalSeconds;
         cleanupScheduler.scheduleAtFixedRate(this::cleanupOldEntries, cleanupInterval, cleanupInterval, TimeUnit.SECONDS);
